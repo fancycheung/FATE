@@ -148,9 +148,11 @@ def run_suite(replace, data_namespace_mangling, config, include, exclude, glob,
 @click.option("-g", '--glob', type=str,
               help="glob string to filter sub-directory of path specified by <include>")
 @click.option('--absolute-tol', type=float,
-              help="tolerance (absolute error) for metrics to be considered almost equal")
+              help="tolerance (absolute error) for metrics to be considered almost equal. "
+                   "Comparison is done by evaluating abs(a-b) <= max(relative_tol * max(abs(a), abs(b)), absolute_tol)")
 @click.option('--relative-tol', type=float,
-              help="tolerance (relative difference) for metrics to be considered almost equal")
+              help="tolerance (relative difference) for metrics to be considered almost equal."
+                   "Comparison is done by evaluating abs(a-b) <= max(relative_tol * max(abs(a), abs(b)), absolute_tol)")
 @click.option("--yes", is_flag=True,
               help="skip double check")
 @click.option("--skip-data", is_flag=True, default=False,

@@ -37,7 +37,7 @@ def _filter_results(metrics, **results):
     return filtered_results
 
 
-def evaluate_almost_equal(metrics, results, abs_tol=None):
+def evaluate_almost_equal(metrics, results, abs_tol=None, rel_tol=None):
     """
     Evaluate for each given metric if values in results are almost equal
     Parameters
@@ -45,6 +45,7 @@ def evaluate_almost_equal(metrics, results, abs_tol=None):
     metrics: List[str], metrics names
     results: dict, results to be evaluated
     abs_tol: float, absolute error tolerance
+    rel_tol: float, relative difference tolerance
 
     Returns
     -------
@@ -58,8 +59,12 @@ def evaluate_almost_equal(metrics, results, abs_tol=None):
     for i, metric in enumerate(metrics):
         v_eval = [res[i] for res in results.values()]
         first_v = v_eval[0]
-        if abs_tol is not None:
+        if abs_tol is not None and rel_tol is not None:
+            eval_summary[metric] = all(math.isclose(v, first_v, abs_tol=abs_tol, rel_tol=rel_tol) for v in v_eval)
+        elif abs_tol is not None:
             eval_summary[metric] = all(math.isclose(v, first_v, abs_tol=abs_tol) for v in v_eval)
+        elif rel_tol is not None:
+            eval_summary[metric] = all(math.isclose(v, first_v, rel_tol=rel_tol) for v in v_eval)
         else:
             eval_summary[metric] = all(math.isclose(v, first_v) for v in v_eval)
     return eval_summary

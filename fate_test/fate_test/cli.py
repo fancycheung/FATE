@@ -147,13 +147,15 @@ def run_suite(replace, data_namespace_mangling, config, include, exclude, glob,
               help=f"config path, defaults to {priority_config()}")
 @click.option("-g", '--glob', type=str,
               help="glob string to filter sub-directory of path specified by <include>")
-@click.option("-t", '--tol', type=float,
+@click.option('--absolute-tol', type=float,
               help="tolerance (absolute error) for metrics to be considered almost equal")
+@click.option('--relative-tol', type=float,
+              help="tolerance (relative difference) for metrics to be considered almost equal")
 @click.option("--yes", is_flag=True,
               help="skip double check")
 @click.option("--skip-data", is_flag=True, default=False,
               help="skip uploading data specified in match")
-def run_benchmark(data_namespace_mangling, config, include, exclude, glob, skip_data, tol, yes):
+def run_benchmark(data_namespace_mangling, config, include, exclude, glob, skip_data, absolute_tol, relative_tol, yes):
     """
     process benchmark suite
     """
@@ -185,7 +187,7 @@ def run_benchmark(data_namespace_mangling, config, include, exclude, glob, skip_
                     except Exception as e:
                         raise RuntimeError(f"exception occur while uploading data for {suite.path}") from e
                 try:
-                    _run_benchmark_pairs(config_inst, suite, tol, namespace, data_namespace_mangling)
+                    _run_benchmark_pairs(config_inst, suite, absolute_tol, relative_tol, namespace, data_namespace_mangling)
                 except Exception as e:
                     raise RuntimeError(f"exception occur while running benchmark jobs for {suite.path}") from e
 
@@ -388,7 +390,7 @@ def _run_pipeline_jobs(config: Config, suite: Testsuite, namespace: str, data_na
             mod.main(config)
 
 
-def _run_benchmark_pairs(config: Config, suite: BenchmarkSuite, tol: float, namespace: str, data_namespace_mangling: bool):
+def _run_benchmark_pairs(config: Config, suite: BenchmarkSuite, absolute_tol: float, relative_tol: float, namespace: str, data_namespace_mangling: bool):
     # pipeline demo goes here
     for pair in suite.pairs:
         results = {}
@@ -409,7 +411,7 @@ def _run_benchmark_pairs(config: Config, suite: BenchmarkSuite, tol: float, name
             else:
                 metric = mod.main()
             results[job_name] = metric
-        match_metrics(evaluate=True, tol=tol, **results)
+        match_metrics(evaluate=True, abs_tol=absolute_tol, rel_tol=relative_tol, **results)
 
 
 def main():

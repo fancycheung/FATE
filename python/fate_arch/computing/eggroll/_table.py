@@ -89,7 +89,7 @@ class Table(CTableABC):
         partitions = self._rp.get_partitions()
         mapped = self._rp.map_partitions(mapper)
         reduced = {}
-        for k, v in mapped.collect():
+        for k, v in mapped.get_all():
             if k not in reduced:
                 reduced[k] = v
             else:

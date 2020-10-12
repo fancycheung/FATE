@@ -67,7 +67,8 @@ def _remote(v, name, tag, parties, rsc, gc):
     t = _get_type(v)
     if t == _FederationValueType.ROLL_PAIR:
         LOGGER.debug(f"[{log_str}]remote "
-                     f"RollPair(namespace={v.get_namespace()}, name={v.get_name()}, partitions={v.get_partitions()})")
+                     f"RollPair(namespace={v.get_namespace()}, name={v.get_name()}, partitions={v.get_partitions()}), "
+                     f"store_type={v.get_store_type()}")
         gc.add_gc_action(tag, v, 'destroy', {})
         _push_with_exception_handle(rsc, v, name, tag, parties)
         return
@@ -174,8 +175,13 @@ def _get_value_post_process(v, name, tag, party, rsc, gc):
     # got a roll pair
     if isinstance(v, RollPair):
         LOGGER.debug(f"[{log_str}] got "
-                     f"RollPair(namespace={v.get_namespace()}, name={v.get_name()}, partitions={v.get_partitions()})")
-        gc.add_gc_action(tag, v, 'destroy', {})
+                     f"RollPair(namespace={v.get_namespace()}, name={v.get_name()}, partitions={v.get_partitions()}), "
+                     f"store_type={v.get_store_type()}")
+        received = v
+        from fate_arch.storage import EggRollStorageType
+        v = v.save_as(namespace=v.get_namespace(), name=f"{v.get_name()}_in_memory", partition=v.get_partitions(),
+                      options={'store_type': EggRollStorageType.ROLLPAIR_IN_MEMORY})
+        received.destroy()
         return v
 
     # got large object in splits

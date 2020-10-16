@@ -239,6 +239,8 @@ class JobController(object):
         job_dsl, job_runtime_conf, train_runtime_conf = job_utils.get_job_configuration(job_id=job_id, role=role,
                                                                                         party_id=party_id)
         job_parameters = job_runtime_conf.get('job_parameters', {})
+        if role in job_parameters.get("assistant_role", []):
+            return
         job_type = job_parameters.get('job_type', '')
         if job_type == 'predict':
             return
